@@ -1,4 +1,6 @@
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -6,15 +8,15 @@ import java.util.stream.Collectors;
 
 public class QueryableMap<K, V> {
     private Map<K, V> map = new ConcurrentHashMap<>();
-    private Map<Function<V, Object>, MultiBiMap<Object, K>> indexes = new ConcurrentHashMap<>();
+    private Map<String, Index<K, V>> indices = new ConcurrentHashMap<>();
     private final Function<V, K> keyFunction;
 
-    public QueryableMap(Function<V, K> keyFunction) {
+    private QueryableMap(Function<V, K> keyFunction) {
         this.keyFunction = keyFunction;
     }
 
-    public void addIndex(Function<V, Object> function) {
-        indexes.put(function, new MultiBiMap<>());
+    private void addIndex(Index<K, V> index) {
+        indices.put(index.getName(), index);
     }
 
     public void put(V value) {
@@ -23,13 +25,13 @@ public class QueryableMap<K, V> {
         delete(key);
         map.put(key, value);
 
-        indexes.forEach((function, indexMap) -> {
-            Object indexKey = function.apply(value);
+        indices.values().forEach(index -> {
+            Object indexKey = index.getFunction().apply(value);
             if (indexKey instanceof Collection) {
-                ((Collection) indexKey).stream()
-                        .forEach(eachIndexKey -> indexMap.put(eachIndexKey, key));
+                ((Collection) indexKey)
+                        .forEach(eachIndexKey -> index.getMap().put(eachIndexKey, key));
             } else {
-                indexMap.put(indexKey, key);
+                index.getMap().put(indexKey, key);
             }
         });
     }
@@ -38,8 +40,8 @@ public class QueryableMap<K, V> {
         V value = map.remove(key);
 
         if (value != null) {
-            indexes.forEach((function, indexMap) -> {
-                indexMap.removeValue(key);
+            indices.forEach((function, indexMap) -> {
+                indexMap.getMap().removeValue(key);
             });
         }
     }
@@ -48,12 +50,62 @@ public class QueryableMap<K, V> {
         return map.get(key);
     }
 
-    public Collection<V> query(Function<V, Object> function, Object value) {
-        MultiBiMap<Object, K> indexMap = indexes.get(function);
+    public Collection<V> query(String indexName, Object value) {
+        MultiBiMap<Object, K> indexMap = indices.get(indexName).getMap();
 
         return indexMap.get(value)
                 .stream()
                 .map(map::get)
                 .collect(Collectors.toList());
+    }
+
+    private static class Index<K, V> {
+        private final String name;
+        private final Function<V, Object> function;
+        private final MultiBiMap<Object, K> map;
+
+        public Index(String name, Function<V, Object> function) {
+            this.function = function;
+            this.name = name;
+            this.map = new MultiBiMap<>();
+        }
+
+        public Function<V, Object> getFunction() {
+            return function;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public MultiBiMap<Object, K> getMap() {
+            return map;
+        }
+    }
+
+    public static <K, V> Builder newBuilder(Function<V, K> keyFunction) {
+        return new Builder<>(keyFunction);
+    }
+
+    public static class Builder<K, V> {
+        private final Function<V, K> keyFunction;
+        private List<Index> indices = new ArrayList<>();
+
+        public Builder(Function<V, K> keyFunction) {
+            this.keyFunction = keyFunction;
+        }
+
+        public Builder<K, V> addIndex(String name, Function<V, Object> function) {
+            indices.add(new Index<>(name, function));
+            return this;
+        }
+
+        public QueryableMap<K, V> build() {
+            QueryableMap<K, V> map = new QueryableMap<>(keyFunction);
+
+            indices.forEach(map::addIndex);
+
+            return map;
+        }
     }
 }

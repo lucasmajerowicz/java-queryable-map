@@ -6,23 +6,24 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.function.Function;
 
 import static java.util.stream.Collectors.toList;
 
 public class QueryableMapTest {
+    private static final String CUSTOMER_ID = "CUSTOMER_ID";
+    private static final String ITEM_ID = "ITEM_ID";
     private QueryableMap<String, Order> map;
     private Order order1;
     private Order order2;
     private Order order3;
-    private Function<Order, Object> customerIdFunc = order -> order.getCustomer().getId();
-    private Function<Order, Object> itemIdFunc = order -> order.getItems().stream().map(LineItem::getItemId).collect(toList());
 
     @Before
     public void setUp() {
-        map = new QueryableMap<>(Order::getId);
-        map.addIndex(customerIdFunc);
-        map.addIndex(itemIdFunc);
+        QueryableMap.Builder<String, Order> builder = QueryableMap.newBuilder(Order::getId);
+        map = builder
+                .addIndex(CUSTOMER_ID, order -> order.getCustomer().getId())
+                .addIndex(ITEM_ID, order -> order.getItems().stream().map(LineItem::getItemId).collect(toList()))
+                .build();
 
         LineItem lineItem11 = new LineItem("item_1", 1, 1);
         LineItem lineItem12 = new LineItem("item_2", 2, 11);
@@ -40,9 +41,9 @@ public class QueryableMapTest {
 
         order3 = new Order("order_3", new Customer("customer_1", "John"), Arrays.asList(lineItem31, lineItem32));
 
-        map.put(order1);
-        map.put(order2);
-        map.put(order3);
+        this.map.put(order1);
+        this.map.put(order2);
+        this.map.put(order3);
     }
 
     @Test
@@ -57,17 +58,17 @@ public class QueryableMapTest {
 
     @Test
     public void test_simple_indexing_works() {
-        Assertions.assertThat(map.query(customerIdFunc, "customer_1")).containsExactlyInAnyOrder(order1, order3);
-        Assertions.assertThat(map.query(customerIdFunc, "customer_2")).containsExactlyInAnyOrder(order2);
-        Assertions.assertThat(map.query(customerIdFunc, "customer_12")).isEmpty();
+        Assertions.assertThat(map.query(CUSTOMER_ID, "customer_1")).containsExactlyInAnyOrder(order1, order3);
+        Assertions.assertThat(map.query(CUSTOMER_ID, "customer_2")).containsExactlyInAnyOrder(order2);
+        Assertions.assertThat(map.query(CUSTOMER_ID, "customer_12")).isEmpty();
     }
 
     @Test
     public void test_collection_indexing_works() {
-        Assertions.assertThat(map.query(itemIdFunc, "item_2")).containsExactlyInAnyOrder(order1, order3);
-        Assertions.assertThat(map.query(itemIdFunc, "item_1")).containsExactlyInAnyOrder(order1, order2);
-        Assertions.assertThat(map.query(itemIdFunc, "item_5")).containsExactlyInAnyOrder(order3);
-        Assertions.assertThat(map.query(itemIdFunc, "item_6")).isEmpty();
+        Assertions.assertThat(map.query(ITEM_ID, "item_2")).containsExactlyInAnyOrder(order1, order3);
+        Assertions.assertThat(map.query(ITEM_ID, "item_1")).containsExactlyInAnyOrder(order1, order2);
+        Assertions.assertThat(map.query(ITEM_ID, "item_5")).containsExactlyInAnyOrder(order3);
+        Assertions.assertThat(map.query(ITEM_ID, "item_6")).isEmpty();
     }
 
 
@@ -77,7 +78,7 @@ public class QueryableMapTest {
 
         Assertions.assertThat(map.get("order_1")).isNull();
 
-        Assertions.assertThat(map.query(itemIdFunc, "item_2")).containsExactlyInAnyOrder(order3);
-        Assertions.assertThat(map.query(itemIdFunc, "item_1")).containsExactlyInAnyOrder(order2);
+        Assertions.assertThat(map.query(ITEM_ID, "item_2")).containsExactlyInAnyOrder(order3);
+        Assertions.assertThat(map.query(ITEM_ID, "item_1")).containsExactlyInAnyOrder(order2);
     }
 }
