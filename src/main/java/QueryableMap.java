@@ -83,16 +83,17 @@ public class QueryableMap<K, V> {
         }
     }
 
-    public static <K, V> Builder newBuilder(Function<V, K> keyFunction) {
-        return new Builder<>(keyFunction);
+    public static <K, V> Builder newBuilder() {
+        return new Builder<>();
     }
 
     public static class Builder<K, V> {
-        private final Function<V, K> keyFunction;
+        private  Function<V, K> keyFunction;
         private List<Index> indices = new ArrayList<>();
 
-        public Builder(Function<V, K> keyFunction) {
+        public Builder<K, V> keyFunction(Function<V, K> keyFunction) {
             this.keyFunction = keyFunction;
+            return this;
         }
 
         public Builder<K, V> addIndex(String name, Function<V, Object> function) {

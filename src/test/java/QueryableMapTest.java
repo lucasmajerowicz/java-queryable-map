@@ -19,8 +19,9 @@ public class QueryableMapTest {
 
     @Before
     public void setUp() {
-        QueryableMap.Builder<String, Order> builder = QueryableMap.newBuilder(Order::getId);
+        QueryableMap.Builder<String, Order> builder = QueryableMap.newBuilder();
         map = builder
+                .keyFunction(Order::getId)
                 .addIndex(CUSTOMER_ID, order -> order.getCustomer().getId())
                 .addIndex(ITEM_ID, order -> order.getItems().stream().map(LineItem::getItemId).collect(toList()))
                 .build();
