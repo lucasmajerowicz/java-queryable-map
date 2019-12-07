@@ -1,4 +1,4 @@
-#Queryable Map 
+Queryable Map 
 ========
 
 ### Accompanying blog post [here](http://hecodes.com/2019/12/implementing-a-queryable-map-in-java/)
@@ -19,7 +19,7 @@ public class User {
 }
 ```
 
-Say we want to store a collection of Users and be able to retrieve them efficiently either by id, name or by one of their phone numbers:
+Here is how to store a collection of Users and then be able to fetch them efficiently either by id, name or by one of their phone numbers:
 
 ```java
 QueryableMap.Builder<String, User> builder = QueryableMap.newBuilder();
