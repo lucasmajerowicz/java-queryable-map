@@ -17,7 +17,7 @@ public class SecondaryIndex<K, V> {
         return map.getOrDefault(k, Collections.EMPTY_SET);
     }
 
-    public void removeValue(V v) {
+    public void removeElement(V v) {
         Set<K> keys = mapReverse.remove(v);
         if (keys != null) {
             keys.forEach(k -> {

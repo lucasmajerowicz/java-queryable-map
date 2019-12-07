@@ -39,19 +39,19 @@ public class SecondaryIndexTest {
 
     @Test
     public void test_remove_works() {
-        map.removeValue(1);
+        map.removeElement(1);
 
         Assertions.assertThat(map.get("A")).containsExactlyInAnyOrder(2, 3);
         Assertions.assertThat(map.get("B")).containsExactlyInAnyOrder(4);
         Assertions.assertThat(map.get("C")).containsExactlyInAnyOrder(4, 5);
 
-        map.removeValue(4);
+        map.removeElement(4);
 
         Assertions.assertThat(map.get("A")).containsExactlyInAnyOrder(2, 3);
         Assertions.assertThat(map.get("B")).isEmpty();
         Assertions.assertThat(map.get("C")).containsExactlyInAnyOrder(5);
 
-        map.removeValue(5);
+        map.removeElement(5);
 
         Assertions.assertThat(map.get("A")).containsExactlyInAnyOrder(2, 3);
         Assertions.assertThat(map.get("B")).isEmpty();
@@ -69,7 +69,7 @@ public class SecondaryIndexTest {
 
     @Test
     public void put_after_delete() {
-        map.removeValue(1);
+        map.removeElement(1);
 
         Assertions.assertThat(map.get("A")).containsExactlyInAnyOrder(2, 3);
         Assertions.assertThat(map.get("B")).containsExactlyInAnyOrder(4);

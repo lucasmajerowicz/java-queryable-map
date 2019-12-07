@@ -41,7 +41,7 @@ public class QueryableMap<K, V> {
 
         if (value != null) {
             indices.forEach((function, indexMap) -> {
-                indexMap.getMap().removeValue(key);
+                indexMap.getMap().removeElement(key);
             });
         }
     }
