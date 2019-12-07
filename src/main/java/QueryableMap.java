@@ -7,9 +7,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class QueryableMap<K, V> {
+    private final Function<V, K> keyFunction;
     private Map<K, V> map = new ConcurrentHashMap<>();
     private Map<String, IndexEntry> indices = new ConcurrentHashMap<>();
-    private final Function<V, K> keyFunction;
 
     private QueryableMap(Function<V, K> keyFunction) {
         this.keyFunction = keyFunction;
