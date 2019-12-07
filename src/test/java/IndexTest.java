@@ -2,12 +2,12 @@ import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 
-public class MultiMapTest {
-    MultiBiMap<String, Integer> map;
+public class IndexTest {
+    Index<String, Integer> map;
 
     @Before
     public void setUp() {
-        map = new MultiBiMap();
+        map = new Index();
 
         map.put("A", 1);
         map.put("A", 2);
