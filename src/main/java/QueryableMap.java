@@ -8,14 +8,14 @@ import java.util.stream.Collectors;
 
 public class QueryableMap<K, V> {
     private Map<K, V> map = new ConcurrentHashMap<>();
-    private Map<String, Index<K, V>> indices = new ConcurrentHashMap<>();
+    private Map<String, Index> indices = new ConcurrentHashMap<>();
     private final Function<V, K> keyFunction;
 
     private QueryableMap(Function<V, K> keyFunction) {
         this.keyFunction = keyFunction;
     }
 
-    private void addIndex(Index<K, V> index) {
+    private void addIndex(Index index) {
         indices.put(index.getName(), index);
     }
 
@@ -51,7 +51,7 @@ public class QueryableMap<K, V> {
     }
 
     public Collection<V> query(String indexName, Object value) {
-        MultiBiMap<Object, K> indexMap = indices.get(indexName).getMap();
+        Index<Object, K> indexMap = indices.get(indexName).getMap();
 
         return indexMap.get(value)
                 .stream()
@@ -62,12 +62,12 @@ public class QueryableMap<K, V> {
     private static class Index<K, V> {
         private final String name;
         private final Function<V, Object> function;
-        private final MultiBiMap<Object, K> map;
+        private final Index<Object, K> map;
 
         public Index(String name, Function<V, Object> function) {
             this.function = function;
             this.name = name;
-            this.map = new MultiBiMap<>();
+            this.map = new Index<>();
         }
 
         public Function<V, Object> getFunction() {
@@ -78,7 +78,7 @@ public class QueryableMap<K, V> {
             return name;
         }
 
-        public MultiBiMap<Object, K> getMap() {
+        public Index<Object, K> getMap() {
             return map;
         }
     }
@@ -97,7 +97,7 @@ public class QueryableMap<K, V> {
         }
 
         public Builder<K, V> addIndex(String name, Function<V, Object> function) {
-            indices.add(new Index<>(name, function));
+            indices.add(new Index(name, function));
             return this;
         }
 
