@@ -2,12 +2,12 @@ import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 
-public class IndexTest {
-    Index<String, Integer> map;
+public class SecondaryIndexTest {
+    SecondaryIndex<String, Integer> map;
 
     @Before
     public void setUp() {
-        map = new Index();
+        map = new SecondaryIndex();
 
         map.put("A", 1);
         map.put("A", 2);

@@ -1,7 +1,7 @@
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class Index<K, V> {
+public class SecondaryIndex<K, V> {
     private Map<K, Set<V>> map = new ConcurrentHashMap<>();
     private Map<V, Set<K>> mapReverse = new ConcurrentHashMap<>();
 

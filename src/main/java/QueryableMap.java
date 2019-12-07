@@ -8,14 +8,14 @@ import java.util.stream.Collectors;
 
 public class QueryableMap<K, V> {
     private Map<K, V> map = new ConcurrentHashMap<>();
-    private Map<String, Index> indices = new ConcurrentHashMap<>();
+    private Map<String, IndexEntry> indices = new ConcurrentHashMap<>();
     private final Function<V, K> keyFunction;
 
     private QueryableMap(Function<V, K> keyFunction) {
         this.keyFunction = keyFunction;
     }
 
-    private void addIndex(Index index) {
+    private void addIndex(IndexEntry index) {
         indices.put(index.getName(), index);
     }
 
@@ -51,7 +51,7 @@ public class QueryableMap<K, V> {
     }
 
     public Collection<V> query(String indexName, Object value) {
-        Index<Object, K> indexMap = indices.get(indexName).getMap();
+        SecondaryIndex<Object, K> indexMap = indices.get(indexName).getMap();
 
         return indexMap.get(value)
                 .stream()
@@ -59,15 +59,15 @@ public class QueryableMap<K, V> {
                 .collect(Collectors.toList());
     }
 
-    private static class Index<K, V> {
+    private static class IndexEntry<K, V> {
         private final String name;
         private final Function<V, Object> function;
-        private final Index<Object, K> map;
+        private final SecondaryIndex<Object, K> map;
 
-        public Index(String name, Function<V, Object> function) {
+        public IndexEntry(String name, Function<V, Object> function) {
             this.function = function;
             this.name = name;
-            this.map = new Index<>();
+            this.map = new SecondaryIndex<>();
         }
 
         public Function<V, Object> getFunction() {
@@ -78,7 +78,7 @@ public class QueryableMap<K, V> {
             return name;
         }
 
-        public Index<Object, K> getMap() {
+        public SecondaryIndex<Object, K> getMap() {
             return map;
         }
     }
@@ -89,7 +89,7 @@ public class QueryableMap<K, V> {
 
     public static class Builder<K, V> {
         private  Function<V, K> keyFunction;
-        private List<Index> indices = new ArrayList<>();
+        private List<IndexEntry> indices = new ArrayList<>();
 
         public Builder<K, V> keyFunction(Function<V, K> keyFunction) {
             this.keyFunction = keyFunction;
@@ -97,7 +97,7 @@ public class QueryableMap<K, V> {
         }
 
         public Builder<K, V> addIndex(String name, Function<V, Object> function) {
-            indices.add(new Index(name, function));
+            indices.add(new IndexEntry(name, function));
             return this;
         }
 
