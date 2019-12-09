@@ -39,23 +39,23 @@ public class SecondaryIndexTest {
 
     @Test
     public void test_remove_works() {
-        map.removeElement(1);
+        map.remove("A", 1);
 
         Assertions.assertThat(map.get("A")).containsExactlyInAnyOrder(2, 3);
         Assertions.assertThat(map.get("B")).containsExactlyInAnyOrder(4);
-        Assertions.assertThat(map.get("C")).containsExactlyInAnyOrder(4, 5);
+        Assertions.assertThat(map.get("C")).containsExactlyInAnyOrder(1, 4, 5);
 
-        map.removeElement(4);
-
-        Assertions.assertThat(map.get("A")).containsExactlyInAnyOrder(2, 3);
-        Assertions.assertThat(map.get("B")).isEmpty();
-        Assertions.assertThat(map.get("C")).containsExactlyInAnyOrder(5);
-
-        map.removeElement(5);
+        map.remove("B", 4);
 
         Assertions.assertThat(map.get("A")).containsExactlyInAnyOrder(2, 3);
         Assertions.assertThat(map.get("B")).isEmpty();
-        Assertions.assertThat(map.get("C")).isEmpty();
+        Assertions.assertThat(map.get("C")).containsExactlyInAnyOrder(1, 4, 5);
+
+        map.remove("C", 5);
+
+        Assertions.assertThat(map.get("A")).containsExactlyInAnyOrder(2, 3);
+        Assertions.assertThat(map.get("B")).isEmpty();
+        Assertions.assertThat(map.get("C")).containsExactlyInAnyOrder(1, 4);
     }
 
     @Test
@@ -68,17 +68,17 @@ public class SecondaryIndexTest {
     }
 
     @Test
-    public void put_after_delete() {
-        map.removeElement(1);
+    public void put_after_remove() {
+        map.remove("A", 1);
 
         Assertions.assertThat(map.get("A")).containsExactlyInAnyOrder(2, 3);
         Assertions.assertThat(map.get("B")).containsExactlyInAnyOrder(4);
-        Assertions.assertThat(map.get("C")).containsExactlyInAnyOrder(4, 5);
+        Assertions.assertThat(map.get("C")).containsExactlyInAnyOrder(1, 4, 5);
 
         map.put("A", 1);
 
         Assertions.assertThat(map.get("A")).containsExactlyInAnyOrder(1, 2, 3);
         Assertions.assertThat(map.get("B")).containsExactlyInAnyOrder(4);
-        Assertions.assertThat(map.get("C")).containsExactlyInAnyOrder(4, 5);
+        Assertions.assertThat(map.get("C")).containsExactlyInAnyOrder(1, 4, 5);
     }
 }
