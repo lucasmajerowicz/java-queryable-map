@@ -40,9 +40,16 @@ public class QueryableMap<K, V> {
         V value = map.remove(key);
 
         if (value != null) {
-            indices.forEach((function, indexMap) -> {
-                indexMap.getMap().removeElement(key);
+            indices.values().forEach(index -> {
+                Object indexKey = index.getFunction().apply(value);
+                if (indexKey instanceof Collection) {
+                    ((Collection) indexKey)
+                            .forEach(eachIndexKey -> index.getMap().remove(eachIndexKey, key));
+                } else {
+                    index.getMap().remove(indexKey, key);
+                }
             });
+
         }
     }
 
